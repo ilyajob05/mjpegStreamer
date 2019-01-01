@@ -5,7 +5,7 @@ Simple application for create and translation mjpeg video stream to http webpage
 openCV
 
 # Usage
-Set number youre camera in system 
+Set number youre camera 
 ```
 int main(int argc, char *argv[])
 {

@@ -13,10 +13,11 @@ int main(int argc, char *argv[])
     camera.open(0);
 
 ```
+''
 
 Open browser and connect 127.0.0.1:8080
 
-![](screen2.png)
+![](./screen2.png)
 
 
 

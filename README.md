@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
 Open browser and connect 127.0.0.1:8080
 
-![](Screenshot%20from%202019-01-01%2017-02-49.png)
+![](screen2.png)
 
 
 

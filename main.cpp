@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
             // delay
             char key = static_cast<char>(waitKey(50));
-            if(key == 'q' || key == 'Q' || key == 'й' || key == 'Й')
+            if(key == 'q' || key == 'Q')
             {
                 videoFlow = false;
             }

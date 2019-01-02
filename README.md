@@ -15,9 +15,13 @@ int main(int argc, char *argv[])
 ```
 
 `mkdir build`
+
 `cd build`
+
 `cmake ..`
+
 `./mjpegStreamer`
+
 
 
 Open browser and connect 127.0.0.1:8080

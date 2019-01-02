@@ -1,7 +1,7 @@
 /**
  *  @author Derendyaev Ilya, ilyajob05@gmail.com
  *  @date    1.1.2019
- *  TCP receiver and receiver
+ *  TCP receiver and sender
  **/
 
 

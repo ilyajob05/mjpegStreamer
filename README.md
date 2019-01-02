@@ -13,7 +13,12 @@ int main(int argc, char *argv[])
     camera.open(0);
 
 ```
-''
+
+`mkdir build`
+`cd build`
+`cmake ..`
+`./mjpegStreamer`
+
 
 Open browser and connect 127.0.0.1:8080
 

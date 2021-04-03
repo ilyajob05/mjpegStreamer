@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
             vector<unsigned char> jpgBuff;
             jpgBuff.clear();
             std::vector<int> params;
-            params.push_back(CV_IMWRITE_JPEG_QUALITY);
+            params.push_back(IMWRITE_JPEG_QUALITY);
             params.push_back(50);
 
             imencode(".jpg", inputImage, jpgBuff, params);

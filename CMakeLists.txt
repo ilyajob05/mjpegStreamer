@@ -1,10 +1,15 @@
-project(mjpegStreamer)
 cmake_minimum_required(VERSION 2.8)
+project(mjpegStreamer)
 
 ################# compiler config #################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CXX_EXTENSIONS OFF)
+
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 --coverage -fprofile-arcs -ftest-coverage")
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 
 ################# source config #################
 file(GLOB SRC_LIST "*.cpp")

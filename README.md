@@ -1,3 +1,6 @@
+[![CMake](https://github.com/ilyajob05/mjpegStreamer/actions/workflows/cmake.yml/badge.svg)](https://github.com/ilyajob05/mjpegStreamer/actions/workflows/cmake.yml)
+
+
 # mjpegStreamer
 Simple application for create and translation mjpeg video stream to http webpage use openCV
 

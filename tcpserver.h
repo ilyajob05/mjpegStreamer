@@ -71,7 +71,7 @@ private:
 	// socket
     int sockIn{-1};
     int sockOut{-1};
-    int sockCurrent{-1};
+    int sockCurrent{-2};
     struct sockaddr_in addr;
 
     status currentState{STATE_NOINIT};

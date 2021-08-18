@@ -22,8 +22,8 @@ TCPServer::TCPServer(const string &dstAddr, const u_int16_t dstPort):
 
 TCPServer::~TCPServer()
 {
-	::close(sockIn);
-	sockIn = 0;
+    close(sockIn);
+    sockIn = 0;
 }
 
 
@@ -38,7 +38,7 @@ TCPServer::status TCPServer::createListener()
 	isConnect = false;
 
 	// create socket
-	sockIn = ::socket(AF_INET, SOCK_STREAM, 0);
+    sockIn = socket(AF_INET, SOCK_STREAM, 0);
 	if(sockIn < 0)
 	{
 		cout << "ERROR opening socket\n" << endl;
@@ -71,7 +71,7 @@ TCPServer::status TCPServer::createListener()
 //	}
 
 
-	bzero(&serv_addr, sizeof(serv_addr));
+    bzero(&serv_addr, sizeof(serv_addr));
 
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY; //any incoming messages
@@ -79,8 +79,8 @@ TCPServer::status TCPServer::createListener()
 
 	//serv_addr.sin_port =  bswap_16(localPort);
 
-	// select listen port
-	int bindRes = bind(sockIn, (struct sockaddr *) &serv_addr, sizeof(struct sockaddr_in));
+    // select listen port
+    int bindRes = bind(sockIn, (struct sockaddr *) &serv_addr, sizeof(struct sockaddr_in));
 	if (bindRes < 0)
 	{
 		cout << "ERROR on binding\n" << endl;
@@ -89,7 +89,7 @@ TCPServer::status TCPServer::createListener()
 
 	cout << "listen input port: " << localPort << endl;
 
-	if(listen(sockIn, 5) != 0)
+    if(listen(sockIn, 5) != 0)
 	{
 		cout << "ERROR on listen socket\n" << endl;
 		return currentState = STATE_ERR;
@@ -107,7 +107,7 @@ TCPServer::status TCPServer::connectSrv(const string &ipAddr, int port)
 	addr.sin_port = htons(destPort);
 	addr.sin_addr.s_addr = inet_addr(destAddr.c_str());
 
-	sockOut = socket(AF_INET, SOCK_STREAM, 0); // создаем сокет для подключений
+    sockOut = socket(AF_INET, SOCK_STREAM, 0);
 	if(sockOut < 0)
 	{
 		perror("ERROR on socket create\n");
@@ -115,8 +115,8 @@ TCPServer::status TCPServer::connectSrv(const string &ipAddr, int port)
 		return currentState = STATE_ERR;
 	}
 
-	// подключение к серверу
-	if(::connect(sockCurrent, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr)) < 0)
+    // connect to server
+    if(connect(sockCurrent, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr)) < 0)
 	{
 			isConnect = false;
 			return currentState = STATE_ERR;
@@ -136,7 +136,7 @@ TCPServer::status TCPServer::disconnect()
 {
 	if(isConnect)
 	{
-		::close(sockCurrent);
+        close(sockCurrent);
 		sockCurrent = -1;
 
 		isConnect = false;
@@ -238,12 +238,13 @@ vector<char> TCPServer::readMsg()
 		{
 			printf("ERROR recv socket\n");
 			inMsg.clear();
+            return inMsg;
 		}
-	}while(len == 1024);
+    }while(len == 1024); // while full pack
 
 	valid = true;
 
-	return inMsg;
+    return inMsg;
 }
 
 

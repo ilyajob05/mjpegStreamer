@@ -58,26 +58,24 @@ public:
 
 	status getState();
 
-        inline bool isValid() {return valid;}
+    inline bool isValid() {return valid;}
 
     TCPServer(const string &dstAddr, const u_int16_t dstPort);
 	~TCPServer();
 
 private:
-
-	bool valid = false;
-
-	string destAddr;
-	int destPort, localPort;
-
+    bool valid{false};
+    string destAddr;
+    int destPort{-1};
+    int localPort{-1};
 	// socket
-    int sockIn, sockOut = 0;
+    int sockIn{-1};
+    int sockOut{-1};
+    int sockCurrent{-1};
+    struct sockaddr_in addr;
 
-	int sockCurrent;
-	struct sockaddr_in addr;
-
-	status currentState = STATE_NOINIT;
-	bool isConnect = false;
+    status currentState{STATE_NOINIT};
+    bool isConnect{false};
 
 	struct sockaddr_in serv_addr, peerAddr;
 };

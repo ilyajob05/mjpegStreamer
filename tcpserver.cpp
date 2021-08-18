@@ -10,10 +10,13 @@
 #include <byteswap.h>
 
 
-TCPServer::TCPServer(const string &dstAddr, u_int16_t dstPort)
+TCPServer::TCPServer(const string &dstAddr, const u_int16_t dstPort):
+    destAddr{dstAddr},
+    destPort{dstPort},
+    localPort{dstPort}
 {
-	localPort = destPort = dstPort;
-	destAddr = dstAddr;
+//	localPort = destPort = dstPort;
+//	destAddr = dstAddr;
 }
 
 
@@ -225,7 +228,7 @@ vector<char> TCPServer::readMsg()
 
 	do
 	{
-		int len = (int)recv(sockCurrent, buff, 1024, 0);
+        len = (int)recv(sockCurrent, buff, 1024, 0);
 
 		if(len > 0)
 		{

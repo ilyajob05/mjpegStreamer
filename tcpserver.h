@@ -60,7 +60,7 @@ public:
 
         inline bool isValid() {return valid;}
 
-	TCPServer(const string &dstAddr, u_int16_t dstPort);
+    TCPServer(const string &dstAddr, const u_int16_t dstPort);
 	~TCPServer();
 
 private:
@@ -71,7 +71,7 @@ private:
 	int destPort, localPort;
 
 	// socket
-	int sockIn, sockOut;
+    int sockIn, sockOut = 0;
 
 	int sockCurrent;
 	struct sockaddr_in addr;

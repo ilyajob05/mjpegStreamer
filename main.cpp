@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         {
             if(camera.read(inputImage))
             {
-                cout << "frame not read" << endl;
+//                cout << "frame not read" << endl;
                 waitKey(100);
             }
 
@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
             headImg += "Content-type: image/jpeg\r\n";
             headImg += "Content-length: " + to_string(jpgBuff.size()) + "\r\n\r\n";
             std::vector<char> strBuff(headImg.begin(), headImg.end());
-
 
             headImg, serverInputConnection.Msg = strBuff;
             if(serverInputConnection.sendMsg()!= TCPServer::STATE_OK)

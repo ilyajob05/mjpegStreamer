@@ -15,8 +15,6 @@ TCPServer::TCPServer(const string &dstAddr, const u_int16_t dstPort):
     destPort{dstPort},
     localPort{dstPort}
 {
-//	localPort = destPort = dstPort;
-//	destAddr = dstAddr;
 }
 
 

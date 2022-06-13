@@ -33,51 +33,54 @@ using namespace std;
 ///
 class TCPServer
 {
-public:
-	vector<char> Msg;
-	vector<char> inMsg;
+    public:
+        vector<char> Msg;
+        vector<char> inMsg;
 
-	enum status{STATE_OK, STATE_ERR, STATE_NOINIT}; ///< State this object
+        enum status {STATE_OK, STATE_ERR, STATE_NOINIT}; ///< State this object
 
-	void appendMsg(vector<char> data); ///< Add data to buffer
+        void appendMsg(vector<char> data); ///< Add data to buffer
 
-	status sendMsg(); ///< Send message
-	status sendMsg(vector<char> data); ///< Send message
-	status sendMsg(vector<unsigned char> data); ///< Send message
+        status sendMsg(); ///< Send message
+        status sendMsg(vector<char> data); ///< Send message
+        status sendMsg(vector<unsigned char> data); ///< Send message
 
-	vector<char> readMsg();
+        vector<char> readMsg();
 
-	void clearMsg();
+        void clearMsg();
 
-	status disconnect();
-	status connectSrv(const string &ipAddr, int port);
-	status connectSrv();
+        status disconnect();
+        status connectSrv(const string& ipAddr, int port);
+        status connectSrv();
 
-	status createListener();
-	status waitConnect();
+        status createListener();
+        status waitConnect();
 
-	status getState();
+        status getState();
 
-    inline bool isValid() {return valid;}
+        inline bool isValid()
+        {
+            return valid;
+        }
 
-    TCPServer(const string &dstAddr, const u_int16_t dstPort);
-	~TCPServer();
+        TCPServer(const string& dstAddr, const u_int16_t dstPort);
+        ~TCPServer();
 
-private:
-    bool valid{false};
-    string destAddr;
-    int destPort{-1};
-    int localPort{-1};
-	// socket
-    int sockIn{-1};
-    int sockOut{-1};
-    int sockCurrent{-2};
-    struct sockaddr_in addr;
+    private:
+        bool valid{false};
+        string destAddr;
+        int destPort{-1};
+        int localPort{-1};
+        // socket
+        int sockIn{-1};
+        int sockOut{-1};
+        int sockCurrent{-2};
+        struct sockaddr_in addr;
 
-    status currentState{STATE_NOINIT};
-    bool isConnect{false};
+        status currentState{STATE_NOINIT};
+        bool isConnect{false};
 
-	struct sockaddr_in serv_addr, peerAddr;
+        struct sockaddr_in serv_addr, peerAddr;
 };
 
 

@@ -15,7 +15,8 @@ using namespace cv;
 
 static void show_usage(std::string name)
 {
-    std::cerr << "mjpegStreamer -src 0 -port 8080 -quality [1-10] -fps 10"
+    std::cout << "Usage: \n"
+              << "\tmjpegStreamer -src 0 -port 8080 -quality [1-10] -fps 10"
               << std::endl;
 }
 

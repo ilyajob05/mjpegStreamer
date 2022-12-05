@@ -29,7 +29,7 @@ static void handler(int signo)
 }
 
 
-void* listener(TCPServer& srvLst)
+void listener(TCPServer& srvLst)
 {
     // register handler for interrupt "accept()"
     struct sigaction sigact = { 0 };

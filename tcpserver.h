@@ -17,6 +17,9 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <list>
+#include <mutex>
+#include <opencv2/opencv.hpp>
 
 // net socket
 #include <sys/types.h>
@@ -34,29 +37,45 @@ using namespace std;
 class TCPServer
 {
     public:
-        vector<char> Msg;
-        vector<char> inMsg;
+        enum State {kOk = 0, kError = -1, kSendHeader = -2, kNotInit = -3, kSendStream = -4}; ///< State this object
 
-        enum status {STATE_OK, STATE_ERR, STATE_NOINIT}; ///< State this object
+        struct SocketAndState {
+            State state {kNotInit};
+            int socket{kNotInit};
+            mutex scOutLock;
+            mutex scInLock;
+            vector<char> inMsg;
+            vector<char> outMsg;
+        };
+
+        cv::Mat emptyImage;
+
+        std::list<unique_ptr<SocketAndState>> sockList;
+        std::mutex sockListLock;
 
         void appendMsg(vector<char> data); ///< Add data to buffer
 
-        status sendMsg(); ///< Send message
-        status sendMsg(vector<char> data); ///< Send message
-        status sendMsg(vector<unsigned char> data); ///< Send message
+        int sendMsgs(); ///< Send message
+        State sendMsg(SocketAndState& sc); ///< Send message
+        State sendMsg(SocketAndState& sc, std::vector<char>& outMsg);
+        int sendMsgs(std::vector<char>& outMsg);
 
-        vector<char> readMsg();
 
-        void clearMsg();
+        void readMsg(int sc, vector<char>& msg);
+        void readMsg(SocketAndState& sc);
 
-        status disconnect();
-        status connectSrv(const string& ipAddr, int port);
-        status connectSrv();
+        void clearMsgs();
+        void clearErrSockets(void);
+        void closeSockets(void);
 
-        status createListener();
-        status waitConnect();
+        int disconnect();
+        int connectSrv(const string& ipAddr, int port);
+        int connectSrv();
 
-        status getState();
+        State createListener();
+        int waitConnect(SocketAndState& ss);
+
+        State getState();
 
         inline bool isValid()
         {
@@ -69,18 +88,21 @@ class TCPServer
     private:
         bool valid{false};
         string destAddr;
-        int destPort{-1};
-        int localPort{-1};
+        int destPort{kNotInit};
+        int localPort{kNotInit};
         // socket
-        int sockIn{-1};
-        int sockOut{-1};
-        int sockCurrent{-2};
+        int sockIn{kNotInit};
+        std::mutex sockInLock;
+
+        int sockOut{kNotInit};
+
         struct sockaddr_in addr;
 
-        status currentState{STATE_NOINIT};
+        State currentState{kNotInit};
         bool isConnect{false};
 
         struct sockaddr_in serv_addr, peerAddr;
+
 };
 
 

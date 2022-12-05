@@ -5,9 +5,10 @@
  **/
 
 
-#include "tcpserver.h"
 #include <sys/socket.h>
 #include <byteswap.h>
+#include <memory>
+#include "tcpserver.h"
 
 
 TCPServer::TCPServer(const string& dstAddr, const u_int16_t dstPort):
@@ -25,47 +26,37 @@ TCPServer::~TCPServer()
 }
 
 
-TCPServer::status TCPServer::connectSrv()
+int TCPServer::connectSrv()
 {
     return connectSrv(destAddr, destPort);
 }
 
 
-TCPServer::status TCPServer::createListener()
+TCPServer::State TCPServer::createListener()
 {
+    unique_lock sLock(sockInLock);
     isConnect = false;
     // create socket
     sockIn = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (sockIn < 0) {
+    if (sockIn == kError) {
         cout << "ERROR opening socket\n" << endl;
-        return currentState = STATE_ERR;
+        return currentState = kError;
     }
 
-    int yes = 1;
+    const int yes = 1;
 
-    //char yes='1'; // use this under Solaris
-    if (setsockopt(sockIn, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
-        cout << "setsockopt\n" << endl;
-        return currentState = STATE_ERR;
+    if (setsockopt(sockIn, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == kError) {
+        cout << "ERROR on setsockopt\n" << endl;
+        return currentState = kError;
     }
 
-    if (setsockopt(sockIn, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes)) == -1) {
-        cout << "setsockopt\n" << endl;
-        return currentState = STATE_ERR;
+    if (setsockopt(sockIn, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes)) == kError) {
+        cout << "ERROR on setsockopt\n" << endl;
+        return currentState = kError;
     }
 
-    //  if (setsockopt(sockCurrent, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
-    //  {
-    //      printf("setsockopt\n");
-    //      return currentState = STATE_ERR;
-    //  }
-    //  if (setsockopt(sockCurrent, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes)) == -1)
-    //  {
-    //      printf("setsockopt\n");
-    //      return currentState = STATE_ERR;
-    //  }
-    bzero(&serv_addr, sizeof(serv_addr));
+    memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY; //any incoming messages
     serv_addr.sin_port = htons(localPort); // is old function
@@ -73,23 +64,25 @@ TCPServer::status TCPServer::createListener()
     // select listen port
     int bindRes = bind(sockIn, (struct sockaddr*) &serv_addr, sizeof(struct sockaddr_in));
 
-    if (bindRes < 0) {
+    if (bindRes == kError) {
         cout << "ERROR on binding\n" << endl;
-        return currentState = STATE_ERR;
+        return currentState = kError;
     }
 
     cout << "listen input port: " << localPort << endl;
 
     if (listen(sockIn, 5) != 0) {
         cout << "ERROR on listen socket\n" << endl;
-        return currentState = STATE_ERR;
+        return currentState = kError;
     }
 
-    return currentState = STATE_OK;
+    return currentState = kOk;
 }
 
-TCPServer::status TCPServer::connectSrv(const string& ipAddr, int port)
+
+int TCPServer::connectSrv(const string& ipAddr, int port)
 {
+    int sockCurrent{-1};
     destAddr = ipAddr;
     destPort = port;
     addr.sin_family = AF_INET;
@@ -100,128 +93,181 @@ TCPServer::status TCPServer::connectSrv(const string& ipAddr, int port)
     if (sockOut < 0) {
         perror("ERROR on socket create\n");
         isConnect = false;
-        return currentState = STATE_ERR;
+        return currentState = kError;
     }
 
     // connect to server
-    if (connect(sockCurrent, (const struct sockaddr*)&addr, (socklen_t)sizeof(addr)) < 0) {
-        isConnect = false;
-        return currentState = STATE_ERR;
-    } else {
-        isConnect = true;
-        return currentState = STATE_OK;
-    }
-
-    // warning remove
-    isConnect = true;
-    return currentState = STATE_OK;
+    connect(sockCurrent, (const struct sockaddr*)&addr, (socklen_t)sizeof(addr));
+    return sockCurrent;
 }
 
 
-TCPServer::status TCPServer::disconnect()
+int TCPServer::disconnect()
 {
-    if (isConnect) {
-        close(sockCurrent);
-        sockCurrent = -1;
-        isConnect = false;
-    }
+    int countMsgs{0};
 
-    Msg.clear();
-    inMsg.clear();
-    return currentState = STATE_NOINIT;
-}
+    for (auto& sc : sockList) {
+        unique_lock sLock(sc->scOutLock);
 
-
-TCPServer::status TCPServer::sendMsg(vector<char> data)
-{
-    if (!isConnect) {
-        return currentState = STATE_NOINIT;
-    }
-
-    if (data.size() > 0) {
-        ssize_t lenSend = send(sockCurrent, data.data(), data.size(), MSG_NOSIGNAL);
-
-        if (lenSend < 1) {
-            return currentState = STATE_ERR;
+        if ((sc->state != kError) && (sc->state != kNotInit)) {
+            close(sc->socket);
+            sc->state = kNotInit;
+            countMsgs++;
         }
-
-        //cout << "send " + to_string(lenSend) + "bytes" << endl;
     }
 
-    return currentState = STATE_OK;
+    return countMsgs;
 }
 
-TCPServer::status TCPServer::sendMsg(vector<unsigned char> data)
+
+TCPServer::State TCPServer::sendMsg(SocketAndState& sc)
 {
-    vector<char>tmpMsg(data.begin(), data.end());
-    return sendMsg(tmpMsg);
+    if ((sc.outMsg.size() > 0)) {
+        unique_lock sLock(sc.scOutLock);
+        ssize_t lenSend = send(sc.socket, sc.outMsg.data(), sc.outMsg.size(), MSG_NOSIGNAL);
+
+        if (lenSend == kError) {
+            sc.state = kError;
+        } else {
+            sc.state = kOk;
+        }
+    }
+
+    return sc.state;
 }
 
-TCPServer::status TCPServer::sendMsg()
+
+TCPServer::State TCPServer::sendMsg(SocketAndState& sc, std::vector<char>& outMsg)
 {
-    TCPServer::status state = sendMsg(Msg);
-    Msg.clear();
-    return state;
+    if ((sc.outMsg.size() > 0) && (sc.state != kError)) {
+        unique_lock sLock(sc.scOutLock);
+        ssize_t lenSend = send(sc.socket, outMsg.data(), outMsg.size(), MSG_NOSIGNAL);
+
+        if (lenSend == kError) {
+            sc.state = kError;
+        } else {
+            sc.state = kOk;
+        }
+    }
+
+    return sc.state;
 }
 
 
-void TCPServer::appendMsg(vector<char> data)
+int TCPServer::sendMsgs(std::vector<char>& outMsg)
 {
-    Msg.insert(Msg.end(), data.begin(), data.end());
+    unique_lock sLock(sockListLock);
+
+    for (auto& sc : sockList) {
+        sendMsg(*sc, outMsg);
+    }
+
+    int countMsgs = count_if(sockList.begin(), sockList.end(),
+    [](const unique_ptr<SocketAndState>& i) -> bool {
+        return i->state != kError;
+    });
+    return countMsgs;
 }
 
 
-void TCPServer::clearMsg()
+int TCPServer::sendMsgs()
 {
-    Msg.clear();
-    inMsg.clear();
+    unique_lock sLock(sockListLock);
+
+    for (auto& sc : sockList) {
+        sendMsg(*sc);
+    }
+
+    int countMsgs = count_if(sockList.begin(), sockList.end(),
+    [](const unique_ptr<SocketAndState>& i) -> bool {
+        return i->state != kError;
+    });
+    return countMsgs;
 }
 
 
-TCPServer::status TCPServer::waitConnect()
+//void TCPServer::appendMsg(vector<char> data)
+//{
+//    outMsg.insert(outMsg.end(), data.begin(), data.end());
+//}
+void TCPServer::clearMsgs()
+{
+    unique_lock sLock(sockListLock);
+
+    for (auto& sc : sockList) {
+        sc->outMsg.clear();
+        sc->inMsg.clear();
+    }
+}
+
+
+void TCPServer::closeSockets(void)
+{
+    for (auto& sc : sockList) {
+        unique_lock sLock(sc->scInLock);
+        close(sc->socket);
+    }
+}
+
+
+void TCPServer::clearErrSockets(void)
+{
+    unique_lock sLock(sockListLock);
+    sockList.erase(remove_if(sockList.begin(), sockList.end(),
+    [](unique_ptr<SocketAndState>& i) -> bool {
+        return i->state == kError;
+    }), sockList.end());
+}
+
+
+int TCPServer::waitConnect(SocketAndState& ss)
 {
     cout << "wait connect..." << endl;
     // wait connection
     // create new socket
     socklen_t peerLen = sizeof(struct sockaddr_in);
-
-    if (sockCurrent != -1) {
+    int sockCurrent{0};
+    {
+        unique_lock sLock(sockInLock);
         sockCurrent = accept(sockIn, (struct sockaddr*) &peerAddr, &peerLen);
+    }
 
-        if (sockCurrent < 0) {
-            cout << "ERROR on accept socket\n" << endl;
-            return currentState = STATE_ERR;
-        }
+    if (sockCurrent == kError) {
+        cout << "ERROR on accept socket\n" << endl;
+        return kError;
+    } else {
+        unique_lock sLock(ss.scInLock);
+        ss.socket = sockCurrent;
+        ss.state = currentState;
     }
 
     cout << "    complete" << endl;
-    isConnect = true;
-    return currentState = STATE_OK;
+    return sockCurrent;
 }
 
 
-vector<char> TCPServer::readMsg()
+void TCPServer::readMsg(SocketAndState& sc)
+{
+    unique_lock sLock(sc.scInLock);
+    readMsg(sc.socket, sc.inMsg);
+}
+
+
+void TCPServer::readMsg(int sc, vector<char>& msg)
 {
     char buff[1024];
-    bzero(buff, sizeof(buff));
-    int len = -1;
-    valid = false;
+    memset(buff, 0, sizeof(buff));
+    ssize_t len = -1;
+    vector<char> msgTmp;
 
     do {
-        len = (int)recv(sockCurrent, buff, 1024, 0);
+        len = recv(sc, buff, 1024, 0);
 
         if (len > 0) {
-            inMsg.insert(inMsg.end(), buff, buff + len);
+            msgTmp.insert(msgTmp.end(), buff, buff + len);
         } else if (len == -1) {
             printf("ERROR recv socket\n");
-            inMsg.clear();
-            return inMsg;
+            return;
         }
     } while (len == 1024); // while full pack
-
-    valid = true;
-    return inMsg;
 }
-
-
-

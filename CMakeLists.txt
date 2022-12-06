@@ -26,23 +26,3 @@ add_executable(${PROJECT_NAME} ${SRC_LIST})
 # OpenCV
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -270,4 +270,6 @@ void TCPServer::readMsg(int sc, vector<char>& msg)
             return;
         }
     } while (len == 1024); // while full pack
+
+    msg = move(msgTmp);
 }

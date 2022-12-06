@@ -44,8 +44,7 @@ void listener(TCPServer& srvLst)
     }
 
     //    raise(SIGSEGV);
-    //  Mat inputImage = imread("../there-is-no-connected-camera-mac.jpg");
-    Mat inputImage = imread("/home/ilya/PRJ/mjpegStreamer/there-is-no-connected-camera-mac.jpg");
+    Mat inputImage = imread("../there-is-no-connected-camera-mac.jpg");
     vector<unsigned char> jpgBuff;
     vector<int> params;
     params.push_back(IMWRITE_JPEG_QUALITY);
@@ -72,7 +71,7 @@ void listener(TCPServer& srvLst)
         sc->state = TCPServer::kSendHeader;
         // read HTTP header
         srvLst.readMsg(*sc);
-        cout << "Client header:\n" << sc->inMsg.data() << endl; // show http header
+        cout << "Client header:\n" << string(sc->inMsg.begin(), sc->inMsg.end()) << endl; // show http header
         cout << "start stream" << endl;
         // send http header
         string headImg;
@@ -197,6 +196,7 @@ int main(int argc, char* argv[])
 
             imshow("camera image", inputImage);
             waitKey(10);
+            //            std::this_thread::(10ms);
             vector<unsigned char> jpgBuff;
             jpgBuff.clear();
             std::vector<int> params;
@@ -224,8 +224,6 @@ int main(int argc, char* argv[])
         if (!videoFlow) {
             break;
         }
-
-        //serverInputConnection.disconnect();
     }
 
     // interrupt listener thread

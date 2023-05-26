@@ -3,6 +3,7 @@
 
 # mjpegStreamer
 Simple application for create and translation mjpeg video stream to http webpage use openCV
+Multithread video streaming
 
 # Requirements
 openCV
@@ -25,6 +26,9 @@ int main(int argc, char *argv[])
 
 `./mjpegStreamer`
 
+or
+
+`./bin/mjpegStreamer`
 
 
 Open browser and connect 127.0.0.1:8080

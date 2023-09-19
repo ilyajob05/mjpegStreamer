@@ -122,21 +122,21 @@ void readArgs(int argc, char* argv[], int& src_cam, int& port, int& fps, int& qu
                 //                i++;
                 src_cam = stoi(argv[++i]);
             } else {
-                std::cerr << "--destination option requires one argument." << std::endl;
+                std::cerr << "--src option requires one argument." << std::endl;
                 return;
             }
         } else if (arg == "-port") {
             if (i + 1 < argc) {
                 port = stoi(argv[++i]);
             } else {
-                std::cerr << "--destination option requires one argument." << std::endl;
+                std::cerr << "--port option requires one argument." << std::endl;
                 return;
             }
         } else if (arg == "-quality") {
             if (i + 1 < argc) {
                 quality = stoi(argv[++i]);
             } else {
-                std::cerr << "--destination option requires one argument." << std::endl;
+                std::cerr << "--quality option requires one argument." << std::endl;
                 return;
             }
         } else if (arg == "-size_img") {
@@ -144,14 +144,14 @@ void readArgs(int argc, char* argv[], int& src_cam, int& port, int& fps, int& qu
                 h_img = stoi(argv[++i]);
                 w_img = stoi(argv[++i]);
             } else {
-                std::cerr << "--destination option requires one argument." << std::endl;
+                std::cerr << "--size_img option requires one argument." << std::endl;
                 return;
             }
         } else if (arg == "-fps") {
             if (i + 1 < argc) {
                 fps = stoi(argv[++i]);
             } else {
-                std::cerr << "--destination option requires one argument." << std::endl;
+                std::cerr << "--fps option requires one argument." << std::endl;
                 return;
             }
         }

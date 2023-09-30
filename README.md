@@ -10,13 +10,6 @@ openCV
 
 # Usage
 Set number youre camera 
-```
-int main(int argc, char *argv[])
-{
-    cv::VideoCapture camera;
-    camera.open(0);
-
-```
 
 `mkdir build`
 
@@ -24,11 +17,11 @@ int main(int argc, char *argv[])
 
 `cmake ..`
 
-`./mjpegStreamer`
+`./mjpegStreamer -src 0 -port 8080 -quality [1-10] -fps 1`
 
 or
 
-`./bin/mjpegStreamer`
+`./bin/mjpegStreamer -src 0 -port 8080 -quality [1-10] -fps 1`
 
 
 Open browser and connect 127.0.0.1:8080

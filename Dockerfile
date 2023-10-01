@@ -9,7 +9,7 @@ RUN apt upgrade -y
 RUN apt install -y git build-essential cmake --no-install-recommends
 
 RUN apt install -y curl zip
-RUN apt install git libopencv-dev python3-opencv
+RUN apt install -y git libopencv-dev python3-opencv
 
 RUN git clone https://github.com/ilyajob05/mjpegStreamer.git
 

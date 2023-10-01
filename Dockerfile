@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
-# RUN apt update -y
-# RUN apt upgrade -y
+RUN apt update -y
+RUN apt upgrade -y
 # reinstall certificates, otherwise git clone command might result in an error
 # RUN apt install --reinstall ca-certificates -y
 

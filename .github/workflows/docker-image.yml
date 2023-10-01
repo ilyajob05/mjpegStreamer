@@ -20,7 +20,7 @@ jobs:
     - name: Build the Docker image
       run: |
         docker build -t mjpeg_streamer:$(date +%s) .
-        # docker tag mjpeg_streamer:latest ${{ secrets.DOCKERHUB_USERNAME }}/mjpeg_streamer:latest
+        docker tag mjpeg_streamer:latest ${{ secrets.DOCKERHUB_USERNAME }}/mjpeg_streamer:latest
 
     - name: Push Docker Image
       run: |

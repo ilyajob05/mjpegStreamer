@@ -15,4 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag mjpeg_streamer:$(date +%s)
+      run: |
+        docker build -t mjpeg_streamer:$(date +%s) .
+        docker tag mjpeg_streamer:latest icvision/mjpeg_streamer:latest

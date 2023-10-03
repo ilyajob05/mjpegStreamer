@@ -23,4 +23,4 @@ WORKDIR /build
 RUN bash -c "cmake ../mjpegStreamer && cmake --build ."
 
 # run executable
-CMD [ "./mjpegStreamer -src 0 -port 8080 -quality [1-10] -fps 20" ]
+ENTRYPOINT [ "./mjpegStreamer" ]

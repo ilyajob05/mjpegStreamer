@@ -15,11 +15,11 @@ RUN apt install -y git libopencv-dev python3-opencv
 
 RUN git clone https://github.com/ilyajob05/mjpegStreamer.git
 
-# copy files from local directory to container
-COPY . .
-
 # define working directory from container
 WORKDIR /build
+
+# copy files from local directory to container
+COPY . .
 
 # compile with CMake 
 RUN bash -c "cmake ../mjpegStreamer && cmake --build ."

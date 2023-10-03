@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=US
 RUN apt update && apt install -y tcl
 RUN apt upgrade -y
-reinstall certificates, otherwise git clone command might result in an error
+# reinstall certificates, otherwise git clone command might result in an error
 RUN apt install --reinstall ca-certificates -y
 
 # install developer dependencies

@@ -20,7 +20,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_REPOSITORY }}:$(date +%s) .
+        docker build -t ${{ secrets.DOCKERHUB_REPOSITORY }}:latest .
         docker tag ${{ secrets.DOCKERHUB_REPOSITORY }}:latest ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
 
     - name: Push Docker Image
